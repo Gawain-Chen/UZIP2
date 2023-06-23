@@ -246,13 +246,14 @@ namespace UZIP2
 		// 关闭窗口
 		private void WMain_BClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			if (USetting.RunState == RunStatus.Normal)
-			{
-				USetting.WindowLeft = this.Left;
-				USetting.WindowTop = this.Top;
-				Environment.Exit(0);
-			}
-		}
+            if (USetting.RunState == RunStatus.Normal)
+            {
+                USetting.WindowLeft = this.Left;
+                USetting.WindowTop = this.Top;
+                Environment.Exit(0);
+            }
+        }
+
 		private void WMain_BClose_MouseEnter(object sender, MouseEventArgs e)
 		{
 			BClose.Foreground = Brushes.Red;
@@ -1625,72 +1626,75 @@ namespace UZIP2
 			// 读取拖拽的文件列表
 			if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
 			{
-				USetting.FileList = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
-			}
-			else return;
-			// 确定文件列表可用性
-			if (USetting.FileList == null) return;
-			
-			// 仅解压
-			if (USetting.AppMode == (int)AppModes.OnlyExtract)
-			{
-				// 是否需要弹出路径选择窗口窗口
-				if (USetting.ExtractOutMode == (int)ExtractPath.Browse)
-				{
-					// 弹出解压路径选择窗口,窗口取消，则中断
-					if (!ShowExtractSelectWindow()) return;
-				}
-				// 更改工作状态
-				USetting.RunState = RunStatus.ExtractFile;
-				MainProcess(true);
-			}
-			// 仅压缩
-			if (USetting.AppMode == (int)AppModes.OnlyCompress)
-			{
-				// 是否需要弹出路径选择窗口窗口
-				if (USetting.CompressOutMode == (int)CompressPath.Browse)
-				{
-					// 弹出压缩路径选择窗口
-					if (!ShowCompressSelectWindow()) return;
-				}
-				// 更改工作状态
-				USetting.RunState = RunStatus.CompressFile;
-				MainProcess(false);
-			}
+                USetting.FileList = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
+				UnzipFiles();
+            }
+        }
 
-			// 自动模式，文件可解压是解压模式，不可则都是压缩模式
-			// 具体工作方式由最后选中并拖拽的文件决定
-			if (USetting.AppMode == (int)AppModes.Auto)
-			{
-				bool ce = UTool.CanExtract(USetting.FileList[0]);
-				VolumesFile vf = new VolumesFile(USetting.FileList[0]);
-				// 检查最后选择的文件是否能解压,或者是否为分卷
-				if ( ce || vf.IsVolumes())
-				{
-					// 检查是否为手动选择解压位置
-					if (USetting.ExtractOutMode == (int)ExtractPath.Browse)
-					{
-						// 弹出解压路径选择窗口，若取消窗口则直接中断工作
-						if (!ShowExtractSelectWindow()) return;
-					}
+		public void UnzipFiles()
+		{
+            // 确定文件列表可用性
+            if (USetting.FileList == null) return;
 
-					USetting.RunState = RunStatus.ExtractFile;
-					MainProcess(true);
-				}
-				else
-				{
-					if (USetting.CompressOutMode == (int)CompressPath.Browse)
-					{
-						// 弹出压缩路径选择窗口，若取消窗口则直接中断工作
-						if (!ShowCompressSelectWindow()) return;
-					}
+            // 仅解压
+            if (USetting.AppMode == (int)AppModes.OnlyExtract)
+            {
+                // 是否需要弹出路径选择窗口窗口
+                if (USetting.ExtractOutMode == (int)ExtractPath.Browse)
+                {
+                    // 弹出解压路径选择窗口,窗口取消，则中断
+                    if (!ShowExtractSelectWindow()) return;
+                }
+                // 更改工作状态
+                USetting.RunState = RunStatus.ExtractFile;
+                MainProcess(true);
+            }
+            // 仅压缩
+            if (USetting.AppMode == (int)AppModes.OnlyCompress)
+            {
+                // 是否需要弹出路径选择窗口窗口
+                if (USetting.CompressOutMode == (int)CompressPath.Browse)
+                {
+                    // 弹出压缩路径选择窗口
+                    if (!ShowCompressSelectWindow()) return;
+                }
+                // 更改工作状态
+                USetting.RunState = RunStatus.CompressFile;
+                MainProcess(false);
+            }
 
-					USetting.RunState = RunStatus.CompressFile;
-					MainProcess(false);
-				}
-			}
-		}
+            // 自动模式，文件可解压是解压模式，不可则都是压缩模式
+            // 具体工作方式由最后选中并拖拽的文件决定
+            if (USetting.AppMode == (int)AppModes.Auto)
+            {
+                bool ce = UTool.CanExtract(USetting.FileList[0]);
+                VolumesFile vf = new VolumesFile(USetting.FileList[0]);
+                // 检查最后选择的文件是否能解压,或者是否为分卷
+                if (ce || vf.IsVolumes())
+                {
+                    // 检查是否为手动选择解压位置
+                    if (USetting.ExtractOutMode == (int)ExtractPath.Browse)
+                    {
+                        // 弹出解压路径选择窗口，若取消窗口则直接中断工作
+                        if (!ShowExtractSelectWindow()) return;
+                    }
 
+                    USetting.RunState = RunStatus.ExtractFile;
+                    MainProcess(true);
+                }
+                else
+                {
+                    if (USetting.CompressOutMode == (int)CompressPath.Browse)
+                    {
+                        // 弹出压缩路径选择窗口，若取消窗口则直接中断工作
+                        if (!ShowCompressSelectWindow()) return;
+                    }
+
+                    USetting.RunState = RunStatus.CompressFile;
+                    MainProcess(false);
+                }
+            }
+        }
 		// 解压选择窗口 弹出
 		private bool ShowExtractSelectWindow()
 		{
@@ -1764,7 +1768,7 @@ namespace UZIP2
 			{
 				FilterFile = true;
 			}
-			Task t = Task.Run(() => {
+			Task task = Task.Run(() => {
 				// 创建debug窗口
 				UCmd Cmd = new UCmd(true);
 				// 用于接收解压/测试结果字符串
@@ -2182,6 +2186,13 @@ namespace UZIP2
 				// 复位中断数据
 				USetting.UCancel = false;
 			});
+			if (USetting.IsCmdMode)
+			{
+				//task.Wait();
+				//System.Windows.Forms.MessageBox.Show("Test");
+				//Application.Current.Shutdown();
+				//Environment.Exit(0);
+            }
 			return;
 		}
 
@@ -2506,5 +2517,13 @@ namespace UZIP2
 		{
 			USetting.HideZipContent = (bool)BHideZipContent.IsChecked;
 		}
-	}
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (USetting.IsCmdMode)
+			{
+                UnzipFiles();
+            }
+        }
+    }
 }

@@ -8,12 +8,12 @@ using System.Windows;
 
 namespace UZIP2
 {
-
-
 	public static class USetting
 	{
-		// 程序信息
-		public static string UZip = "UZip2.22 by Farkaway\nFrom 52pojie.cn";
+        // 命令行或右键菜单模式
+        public static bool IsCmdMode = false;
+        // 程序信息
+        public static string UZip = "UZip2.22 by Farkaway";
 		// 程序状态
 		public static RunStatus RunState = RunStatus.Normal;
 		// 解压压缩中断

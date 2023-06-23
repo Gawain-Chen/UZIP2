@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UZIP2"
         mc:Ignorable="d"
-        Title="UZip2" Height="270" Width="520" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        Title="UZip2" Height="270" Width="520" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" MouseLeftButtonDown="Window_MouseLeftButtonDown" Loaded="Window_Loaded">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

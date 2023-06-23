@@ -99,7 +99,7 @@ namespace UZIP2
 			}
 			catch (Exception ex)
 			{
-				//MessageBox.Show("网络错误");
+				MessageBox.Show("网络错误" + ex.Message);
 			}
 			if (lp.Count >0)
 			{
@@ -128,8 +128,8 @@ namespace UZIP2
 			}
 			catch (Exception ex)
 			{
-				//MessageBox.Show("网络错误");
-			}
+				MessageBox.Show("网络错误" + ex.Message);
+            }
 			if (lp.Count > 0)
 			{
 				return lp.ToArray();
