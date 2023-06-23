@@ -460,7 +460,9 @@ namespace UZIP2
 			{
 				str = GetClipboardHelp();
 				if (str == null) return;
-				str = USetting.PWPaper.AddPassword(str);
+                USetting.PWPaper.DeletePassword(str);
+                str = USetting.PWPaper.AddPassword(str);
+                USetting.PWPaper.SavePasswords();
 				if (str != null)
 				{
 					BPasswordPatse.Content = "密码纸(" + USetting.PWPaper.Count + ")";
