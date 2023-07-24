@@ -210,8 +210,11 @@ namespace UZIP2
 			//备份密码
 			USetting.BackConfigPage();
 			USetting.BackConfigNote();
-
-		}
+            if(USetting.IsCmdMode)
+			{
+				MinWindow();
+            }
+        }
 
 		// 更改背景图片
 		private void ChangeBackground(string s)
@@ -245,6 +248,11 @@ namespace UZIP2
 
 		// 关闭窗口
 		private void WMain_BClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			CloseWindow();
+        }
+
+		void CloseWindow()
 		{
             if (USetting.RunState == RunStatus.Normal)
             {
@@ -1781,7 +1789,6 @@ namespace UZIP2
 				bool uOk = false;
 				// 是否是分卷
 				VolumesFile uVolumes = null;
-
 				
 				// 文件计数
 				int fn = 0;
@@ -1813,7 +1820,10 @@ namespace UZIP2
 					string FName = System.IO.Path.GetFileNameWithoutExtension(f);
 					
 					str = "正在解压（" + ++fn + "/" + fs + "）\n";
-					this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "检查压缩档案...", TipMods.FixGray);
+					if (!USetting.IsCmdMode)
+					{
+						this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "检查压缩档案...", TipMods.FixGray);
+					}
 					// 检查是否为分卷,返回主分卷
 					uVolumes = new VolumesFile(f);
 
@@ -1921,7 +1931,10 @@ namespace UZIP2
 					
 					if (!uOk && USetting.ReadPasswordMode !=0)
 					{
-						this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "提取内置解压密码...", TipMods.FixGray);
+						if (!USetting.IsCmdMode)
+						{ 
+                            this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "提取内置解压密码...", TipMods.FixGray);
+						}
 						Mypassword myps = new Mypassword();
 						if (myps.myp != null) 
 						{
@@ -1943,7 +1956,10 @@ namespace UZIP2
 					if (!uOk && USetting.NameToPassword && USetting.NameFilter != null 
 						&& USetting.NameFilter != "" && !uVolumes.IsVolumes())
 					{
-						this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "从文件名提取密码...", TipMods.FixGray);
+                        if (!USetting.IsCmdMode)
+                        {
+							this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "从文件名提取密码...", TipMods.FixGray);
+                        }
 						NamePassword = UTool.SplitString(FName,USetting.NameFilter);
 						// 分卷则使用其他方式
 						//NamePassword = UTool.SplitString(uVolumes.FileName, USetting.NameFilter);
@@ -1971,8 +1987,10 @@ namespace UZIP2
 					}
 
 
-					
-					this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "查找可用密码...", TipMods.FixGray);
+                    if (!USetting.IsCmdMode)
+                    {
+						this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "查找可用密码...", TipMods.FixGray);
+                    }
 
 					// 在密码本中查找密码
 					if (!uOk)
@@ -2007,10 +2025,13 @@ namespace UZIP2
 						}
 						continue;
 					}
-					this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "正在提取文件..." , TipMods.FixGray);
+                    if (!USetting.IsCmdMode)
+                    {
+						this.Dispatcher.Invoke(new UMessage(UMessageTipCancel), str + "正在提取文件..." , TipMods.FixGray);
+                    }
 
 					// 开始解压 // 解压新临时文件夹以实现特殊功能
-					uMessage = Cmd.ExtractFileNewForder(f, uPassword);
+					uMessage = Cmd.ExtractFileNewForder(f, FOutTemp, uPassword);
 
 					// Debug模式显示结果
 					if (USetting.DebugMode)
@@ -2030,8 +2051,11 @@ namespace UZIP2
 							USetting.PWRecycle.Add(uPassword);
 							// 删除密码纸已用密码
 							USetting.PWPaper.DeletePassword(uPassword);
-							// 修正密码纸计数
-							this.Dispatcher.Invoke(new UMessagePaper(UMessagePaperNum));
+                            if (!USetting.IsCmdMode)
+                            {
+								// 修正密码纸计数
+								this.Dispatcher.Invoke(new UMessagePaper(UMessagePaperNum));
+                            }
 						}
 
 						//if (uIsPaper) PWPSuccessList.Add(uPassword);
@@ -2165,21 +2189,24 @@ namespace UZIP2
 				// 整理成功失败数据
 				int fl = FailureList.Count;
 				int sl = SuccessList.Count;
-				// 使用结果窗 则只在结果窗显示结果
-				if (USetting.ResultWindow)
-				{
-					this.Dispatcher.Invoke(new UMessage(UMessageTip), "拖拽一个压缩档案到这里",TipMods.TipNormal);
-					this.Dispatcher.Invoke(new UMessageResult(UMessageResultWindow), SuccessList, FailureList,true);
+                if (!USetting.IsCmdMode)
+                {
+					// 使用结果窗 则只在结果窗显示结果
+					if (USetting.ResultWindow)
+					{
+						this.Dispatcher.Invoke(new UMessage(UMessageTip), "拖拽一个压缩档案到这里",TipMods.TipNormal);
+						this.Dispatcher.Invoke(new UMessageResult(UMessageResultWindow), SuccessList, FailureList,true);
 					
-				}
-				// 不使用结果窗，在提示面板显示结果
-				else
-				{
-					if (fl != 0)
-						this.Dispatcher.Invoke(new UMessage(UMessageTip), "解压已完成,其中 " + fl + " 个失败", TipMods.WarnRed);
+					}
+					// 不使用结果窗，在提示面板显示结果
 					else
-						this.Dispatcher.Invoke(new UMessage(UMessageTip), "解压全部完成", TipMods.WarnGreen);
-				}
+					{
+						if (fl != 0)
+							this.Dispatcher.Invoke(new UMessage(UMessageTip), "解压已完成,其中 " + fl + " 个失败", TipMods.WarnRed);
+						else
+							this.Dispatcher.Invoke(new UMessage(UMessageTip), "解压全部完成", TipMods.WarnGreen);
+					}
+                }
 				
 				// 清空文件列表
 				USetting.FileList = null;
@@ -2188,12 +2215,9 @@ namespace UZIP2
 			});
 			if (USetting.IsCmdMode)
 			{
-				//task.Wait();
-				//System.Windows.Forms.MessageBox.Show("Test");
-				//Application.Current.Shutdown();
-				//Environment.Exit(0);
+				task.Wait();
+				CloseWindow();
             }
-			return;
 		}
 
 		// 压缩主进程
@@ -2475,16 +2499,19 @@ namespace UZIP2
 
 		private void BClose_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			Thread.Sleep(200);
-			this.WindowState = WindowState.Minimized;
-			if (USetting.RunState == RunStatus.Normal)
-			{
-				TipWarnToNormal();
-				TipShowEnd();
-			}
-			
+			MinWindow();
+        }
 
-		}
+		void MinWindow()
+		{
+            Thread.Sleep(200);
+            this.WindowState = WindowState.Minimized;
+            if (USetting.RunState == RunStatus.Normal)
+            {
+                TipWarnToNormal();
+                TipShowEnd();
+            }
+        }
 
 		private void BTip_MouseEnter(object sender, MouseEventArgs e)
 		{
@@ -2520,7 +2547,7 @@ namespace UZIP2
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (USetting.IsCmdMode)
+			if (USetting.IsCmdMode)
 			{
                 UnzipFiles();
             }
