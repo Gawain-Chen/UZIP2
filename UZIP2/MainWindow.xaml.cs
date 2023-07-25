@@ -2032,7 +2032,7 @@ namespace UZIP2
                     }
 
                     // 开始解压 // 解压新临时文件夹以实现特殊功能
-                    uMessage = Cmd.ExtractFileNewForder(f, FOutTemp, uPassword);
+                    uMessage = Cmd.ExtractFileNewForder(f, uPassword);
 
                     // Debug模式显示结果
                     if (USetting.DebugMode)
