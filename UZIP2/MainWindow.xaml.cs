@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace UZIP2
 {
@@ -1765,6 +1759,8 @@ namespace UZIP2
             List<string> SuccessList = new List<string>();
             // 失败列表
             List<string> FailureList = new List<string>();
+            // 需要再次解压的压缩包列表
+            List<string> ExtractAgainList = new List<string>();
             // 密码纸已用列表
             List<string> PWPSuccessList = new List<string>();
             // 分卷文件列表
@@ -2032,10 +2028,10 @@ namespace UZIP2
                     }
 
                     // 开始解压 // 解压新临时文件夹以实现特殊功能
-                    uMessage = Cmd.ExtractFileNewForder(f, uPassword);
+                    uMessage = Cmd.ExtractFileNewForder(f, FOutTemp, uPassword);
 
                     // Debug模式显示结果
-                    if (USetting.DebugMode)
+                    if (!USetting.IsCmdMode && USetting.DebugMode)
                     {
                         this.Dispatcher.Invoke(new UMessageBug(UMessageDebugWindow), uMessage);
                     }
@@ -2077,6 +2073,14 @@ namespace UZIP2
 
                         // 读取临时目录信息
                         di = new DirectoryInfo(FOutTemp);
+
+                        foreach (var fileInfo in di.GetFiles("*", SearchOption.TopDirectoryOnly))
+                        {
+                            if (UTool.CanExtract(fileInfo.FullName))
+                            {
+                                ExtractAgainList.Add(System.IO.Path.Combine(FOut, fileInfo.Name));
+                            }
+                        }
 
                         // 还原临时目录的文件 
                         // 处理多文件情况,或处理解压到同名文件夹
@@ -2213,6 +2217,13 @@ namespace UZIP2
                 USetting.FileList = null;
                 // 复位中断数据
                 USetting.UCancel = false;
+
+                var list = ExtractAgainList.Distinct().Where(p => File.Exists(p)).ToArray();
+                if (list.Length > 0)
+                {
+                    USetting.FileList = list;
+                    ExtractProcessAsync();
+                }
             });
             if (USetting.IsCmdMode)
             {

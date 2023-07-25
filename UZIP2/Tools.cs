@@ -544,13 +544,13 @@ namespace UZIP2
             else path = USetting.LastExtractPath;
             //System.Windows.MessageBox.Show(path);
             // 是否需要新建文件夹
-            if (file != null) path += $"UZipTemp_{Path.GetFileNameWithoutExtension(file)}\\";
+            if (file != null) path += "UZipTemp_" + Path.GetFileNameWithoutExtension(file);
 
             // 检查解压输出目录是否存在，不存在就创建
             if (Directory.Exists(path) == false)
             {
-                var dir = Directory.CreateDirectory(path);
-                dir.Attributes |= FileAttributes.Hidden;
+                var tempDir = Directory.CreateDirectory(path);
+                tempDir.Attributes |= FileAttributes.Hidden;
             }
             return UTool.CompletionPath(path);
         }
@@ -674,13 +674,12 @@ namespace UZIP2
             return StrOutPut;
         }
         // 解压文件，在新文件夹中
-        public string ExtractFileNewForder(string FilePath, string Password = null)
+        public string ExtractFileNewForder(string FilePath, string TempDir, string Password = null)
         {
 
             // 拼接输出
             // 拼接解压缩用字符串
-            string StrInput = Z7Path + " x " + "\"" + FilePath + "\"" + " -o" + UCmdPathHelp.GetExtractPath(FilePath) +
-                " " + ECover + " -p" + "\"" + Password + "\"";
+            string StrInput = Z7Path + " x " + "\"" + FilePath + "\"" + " -o\"" + TempDir + "\" " + ECover + " -p" + "\"" + Password + "\"";
             // 启动CMD程序并读取结果
             string StrOutPut = Cmd(StrInput);
             return StrOutPut;
