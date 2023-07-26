@@ -15,7 +15,7 @@
 # [UZIP简介](https://www.yuque.com/farkaway/uzip/gggnsn)
 UZIP是一个主要用于解压各种压缩档案的小工具，希望它可以为您提供更便利的解压功能。
 
-![功能演示](https://attach.52pojie.cn/forum/202103/15/183448gwdx9o0ao5bno91p.gif)
+![功能演示](功能演示动图.gif)
 
 有别于市面上其他压缩工具，其有以下主要功能特点：
 1. 拖拽压缩/拖拽解压。所有的操作通过更直观的拖拽操作完成。
